@@ -1,1 +1,1 @@
-web: npm build; npm start;
+web: cake build; node server.js;
