@@ -146,6 +146,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       cd rachel-bot
       sudo npm install
       sudo npm install -g coffee-script
+      sudo npm install -g mocha
       cd -
 
       # Personal config.
