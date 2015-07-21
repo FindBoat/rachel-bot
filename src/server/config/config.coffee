@@ -1,5 +1,5 @@
 # Sets application config parameters depending on `env` name
-env = process.env.NODE_ENV or 'dev'
+env = process.env.NODE_ENV or 'prod'
 console.log "Set app environment: #{env}"
 
 switch(env)
