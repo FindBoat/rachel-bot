@@ -4,6 +4,7 @@ User = new mongoose.Schema
   firstName: type: String
   lastName: type: String
   telegramUsername: type: String
+  telegramUserId: type: String
   email: type: String, lowercase: true
   createdAt: type: Date, default: Date.now
   location:

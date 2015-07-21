@@ -12,22 +12,23 @@ utils = require './utils'
 
 
 createUserIfNotPresent = (message, next) ->
-  User.findOne telegramUsername: message.chat.username, (err, user) ->
+  User.findOne telegramUserId: message.from.id, (err, user) ->
     if err?
       console.log err
       return
 
     if user?
-      console.log "User @#{message.chat.username} exists in system"
+      console.log "User #{message.from.id} @#{message.from.username} exists in system"
       next user
       return
 
     # Create new user.
-    console.log "Creating new user: @#{message.chat.username}"
+    console.log "Creating new user: #{message.from.id} @#{message.from.username}"
     user = new User
-      firstName: message.chat.first_name
-      lastName: message.chat.last_name
-      telegramUsername: message.chat.username
+      firstName: message.from.first_name
+      lastName: message.from.last_name
+      telegramUsername: message.from.username
+      telegramUserId: message.from.id
     user.save (err) ->
       if err?
         console.log err
@@ -188,7 +189,7 @@ handleMessage = (message, user, chatContext) ->
       offset = 0
 
     offsetDate = moment().add(offset, 'seconds').toDate()
-    reminderParser.parse message.text, offsetDate, (err, res) ->
+    reminderParser.parse normalizedText, offsetDate, (err, res) ->
       if err?
         bot.sendMessage
           chat_id: message.chat.id
@@ -199,7 +200,7 @@ handleMessage = (message, user, chatContext) ->
               "\"Remind me tomorrow noon to have lunch with Mark.\"\n")
         return
 
-      displayTime = moment(res.time).format 'M/D/YYYY h:m:s a'
+      displayTime = moment(res.time).format 'M/D/YYYY hh:mm:ss a'
       res.time = moment(res.time).add(-offset, 'seconds').toDate()
       console.log "ReminderParser returns: #{JSON.stringify(res)}"
 
@@ -219,7 +220,7 @@ handleMessage = (message, user, chatContext) ->
   # General mode.
   else
     console.log 'General mode'
-    generalParser.parse message.text, user, (err, res) ->
+    generalParser.parse normalizedText, user, (err, res) ->
       if err?
         console.log err
         return

@@ -10,6 +10,7 @@ switch(env)
     exports.DEBUG_CLIENT = true
 
     exports.MONGODB_URI = 'mongodb://localhost:27017/rachel'
+    exports.TELEGRAM_TOKEN = '119032707:AAHbZyi4mXH6GtAP1_vpNxv_KktPEDdFEgU'
 
   when 'prod'
     exports.DEBUG_LOG = false
@@ -18,6 +19,7 @@ switch(env)
     exports.DEBUG_CLIENT = false
 
     exports.MONGODB_URI = process.env.MONGOLAB_URI
+    exports.TELEGRAM_TOKEN = '112582980:AAEQILFiw749CX7mg7ULhww_rvQwuax8pXI'
 
   else
     console.log "Environment #{env} not found"
