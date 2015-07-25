@@ -27,12 +27,12 @@ build = (callback) ->
   coffee.stderr.pipe process.stderr
   coffee.on 'exit', (status) -> callback?() if status is 0
 
-  # # Compile coffee in src/manage to .app directory
-  # options = ['-c','-b', '-o', '.app/manage', 'src/manage']
-  # coffee = spawn cmd, options
-  # coffee.stdout.pipe process.stdout
-  # coffee.stderr.pipe process.stderr
-  # coffee.on 'exit', (status) -> callback?() if status is 0
+  # Compile coffee in src/manage to .app directory
+  options = ['-c','-b', '-o', '.app/manage', 'src/manage']
+  coffee = spawn cmd, options
+  coffee.stdout.pipe process.stdout
+  coffee.stderr.pipe process.stderr
+  coffee.on 'exit', (status) -> callback?() if status is 0
 
   # # Compile coffee in src/client/ to public/client/.
   # options = ['-c','-b', '-o', 'public/client/', 'src/client/']
@@ -53,10 +53,10 @@ task 'dev', 'start dev env', ->
   coffee.stdout.pipe process.stdout
   coffee.stderr.pipe process.stderr
 
-  # options = ['-w', '-b', '-c', '-o', '.app/manage', 'src/manage']
-  # coffee = spawn cmd, options
-  # coffee.stdout.pipe process.stdout
-  # coffee.stderr.pipe process.stderr
+  options = ['-w', '-b', '-c', '-o', '.app/manage', 'src/manage']
+  coffee = spawn cmd, options
+  coffee.stdout.pipe process.stdout
+  coffee.stderr.pipe process.stderr
 
   # options = ['-w', '-c','-b', '-o', 'public/client/', 'src/client/']
   # coffee = spawn cmd, options

@@ -65,7 +65,7 @@ waitAndParseLocation = (message, user, chatContext) ->
       bot.sendMessage
         chat_id: message.chat.id
         text: ("Sorry, I can't understand the location you sent.\n\n Can " +
-            "you tap the paperclip on the bottom :point_down:, tap " +
+            "you tap the paperclip on the bottom, tap " +
             "Location and then tap Send My Current Location.\nOr send your " +
             "city, state and country like \"Palo Alto, CA, US\".")
       return
@@ -97,7 +97,7 @@ askLocation = (message, user, chatContext) ->
     chat_id: message.chat.id
     text: ("Hi #{user.firstName}, I need to know your location to set up " +
         "the timezone for you.\n\nPlease tap the paperclip on the " +
-        "bottom :point_down:, tap Location and then tap Send My " +
+        "bottom, tap Location and then tap Send My " +
         "Current Location.\nOr you can just send your city, state " +
         "and country like \"Palo Alto, CA, US\".")
   chatContext.status = 'WAIT_LOCATION'
@@ -135,7 +135,8 @@ sendHelp = (message) ->
         "\"Please remind me in 1 hour to check my email.\"\n" +
         "\"Rachel, can you remind me to check my email next week?\"\n" +
         "\"Remind me tomorrow noon to have lunch with Mark.\"\n\n" +
-        "You can also send /feedback to tell me your feedback.")
+        "/feedback to tell me your feedback.\n" +
+        "/resetlocation to reset your location and timezone.")
 
 cancelReminder = (message, user) ->
   Reminder.findOne userId: user._id, null, sort: {createAt: -1}, (err, reminder) ->
@@ -169,7 +170,16 @@ maybeSaveFeedback = (message, user, chatContext) ->
     bot.sendMessage
       chat_id: message.chat.id
       text: "Thank you so much for your feedback #{user.firstName}!"
-    
+
+sendResetLocation = (message, user, chatContext) ->
+  bot.sendMessage
+    chat_id: message.chat.id
+    text: ("#{user.firstName}, please tap the paperclip on the " +
+        "bottom :point_down:, tap Location and then tap Send My " +
+        "Current Location.\nOr you can just send your city, state " +
+        "and country like \"Palo Alto, CA, US\".")
+  chatContext.status = 'WAIT_LOCATION'
+  chatContext.save (err) -> if err? then console.log err
 
 
 handleMessage = (message, user, chatContext) ->
@@ -182,6 +192,9 @@ handleMessage = (message, user, chatContext) ->
     return
   if message.text is '/feedback'
     sendFeedback message, user, chatContext
+    return
+  if message.text is '/resetlocation'
+    sendResetLocation message, user, chatContext
     return
 
   # Check answer by chatContext.status.
@@ -277,10 +290,7 @@ handleMessage = (message, user, chatContext) ->
       else
         bot.sendMessage
           chat_id: message.chat.id
-          text: ("I'm sorry #{user.firstName}, I'm having some trouble " +
-              "understanding what you mean. Can you explain again?\n\n" +
-              "Send /help to ask for more info or /feedback to tell me " +
-              "your feedback.")
+          text: utils.random user.firstName
 
   return
 

@@ -33,12 +33,13 @@
     "moment": "*",
     "mongoose": "3.8.x",
     "nib": "0.9.2",
+    "node-emoji": "*",
+    "node-telegram-bot": "0.0.17",
     "stylus": "*",
     "supervisor": "^0.6.0",
     "util": "0.10.3",
     "which": "1.0.5",
-    "wrench": "1.5.x",
-    "node-telegram-bot": "0.0.17"
+    "wrench": "1.5.x"
   },
   "devDependencies": {
     "coffee-script": "*",
