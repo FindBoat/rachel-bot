@@ -13,6 +13,10 @@ User = new mongoose.Schema
   timezone:
     dstOffset: type: Number
     rawOffset: type: Number
+  hasDone:
+    hasAskedReview: type: Boolean, default: false
+    hasAskedFeedback: type: Boolean, default: false
+  
 
 
 module.exports = mongoose.model 'User', User  
