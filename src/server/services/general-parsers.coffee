@@ -19,7 +19,7 @@ mappings = (name) ->
     }
     {
       id: 'thank'
-      regex: /// \bthank ///
+      regex: /// (\bthank)|(\bthx\b) ///
       answers: [
         "You're very welcome #{name}!"
         "No problem #{name}!"
@@ -40,6 +40,14 @@ mappings = (name) ->
         "How could you forget about me. I'm your assistant Rachel."
       ]
     }
+    {
+      id: 'iloveyou'
+      regex: /// i\slove\syou ///
+      answers: [
+        "Rachel also loves you!"
+      ]
+    }
+    
   ]
 
 
