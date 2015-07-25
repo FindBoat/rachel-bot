@@ -22,7 +22,8 @@ mappings = (name) ->
       regex: /// \bthank ///
       answers: [
         "You're very welcome #{name}!"
-        "No problem #{name}", "You're welcome #{name}!"
+        "No problem #{name}!"
+        "You're welcome #{name}!"
       ]
     }
     {

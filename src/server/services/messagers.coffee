@@ -1,6 +1,7 @@
 moment = require 'moment'
 
 ChatContext = require './chat-context'
+Feedback = require './feedbacks'
 Reminder = require './reminders'
 User = require './users'
 bot = require './bots'
@@ -130,28 +131,57 @@ sendHelp = (message) ->
         "I can remind you with whatever you want in anytime. Just " +
         "tell me something like \"Remind me to clear home tomorrow " +
         "at noon\" and I'll set up a reminder for you.\n\n" +
-        "Here are examples that I can better understand:\n " +
+        "Here are examples that I can better understand:\n" +
         "\"Please remind me in 1 hour to check my email.\"\n" +
         "\"Rachel, can you remind me to check my email next week?\"\n" +
-        "\"Remind me tomorrow noon to have lunch with Mark.\"\n")
+        "\"Remind me tomorrow noon to have lunch with Mark.\"\n\n" +
+        "You can also send /feedback to tell me your feedback.")
+
+cancelReminder = (message, user) ->
+  Reminder.findOne userId: user._id, null, sort: {createAt: -1}, (err, reminder) ->
+    reminder.removeWithAgenda (err) -> if err? then console.log err
+    bot.sendMessage
+      chat_id: message.chat.id
+      text: "I've canceled this reminder."
+
+sendFeedback = (message, user, chatContext) ->
+  bot.sendMessage
+    chat_id: message.chat.id
+    text: ("#{user.firstName}, please tell me your feedback, I really " +
+        "appreciate it!\n(Reply \"cancel\" to cancel this.)")
+  
+  chatContext.status = 'WAIT_FEEDBACK'
+  chatContext.save (err) -> if err? then console.log err
+
+maybeSaveFeedback = (message, user, chatContext) ->
+  chatContext.status = null
+  chatContext.save (err) -> if err? then console.log err
+
+  if message.text.toLowerCase() is 'cancel'
+    bot.sendMessage
+      chat_id: message.chat.id
+      text: "Fine. So what can I do for you #{user.firstName}?"
+  else
+    feedback = new Feedback
+      userId: user._id
+      feedback: message.text
+    feedback.save (err) -> if err? then console.log err
+    bot.sendMessage
+      chat_id: message.chat.id
+      text: "Thank you so much for your feedback #{user.firstName}!"
+    
 
 
 handleMessage = (message, user, chatContext) ->
-  # Remove user.
-  # user.remove (err, user) ->
-  #   if err?
-  #     console.log err
-  #     return
-  #   console.log 'removed'
-  # return
-
   # Greeting.
   if message.text is '/start'
     sendGreeting message, user, chatContext
     return
-
   if message.text is '/help'
     sendHelp message
+    return
+  if message.text is '/feedback'
+    sendFeedback message, user, chatContext
     return
 
   # Check answer by chatContext.status.
@@ -165,6 +195,15 @@ handleMessage = (message, user, chatContext) ->
         text: "So what can I do for you #{user.firstName}?"
       chatContext.status = null
       chatContext.save (err) -> if err? then console.log err
+      return
+    when 'WAIT_CANCEL_REMINDER'
+      chatContext.status = null
+      chatContext.save (err) -> if err? then console.log err
+      if message.text.toLowerCase() is 'cancel'
+        cancelReminder message, user
+        return
+    when 'WAIT_FEEDBACK'
+      maybeSaveFeedback message, user, chatContext
       return
 
   # Check location.
@@ -210,12 +249,16 @@ handleMessage = (message, user, chatContext) ->
         remindTime: res.time
         todo: res.todo
         chatId: message.chat.id
-      reminder.saveWithAgenda user
+      reminder.saveWithAgenda user, (err) -> if err? then console.log err
 
       confirm = utils.confirm user.firstName
       bot.sendMessage
         chat_id: message.chat.id
-        text: ("#{confirm} I'll remind you to #{res.todo} on #{displayTime}.")
+        text: ("#{confirm} I'll remind you to #{res.todo} on #{displayTime}.\n" +
+            "(Reply \"cancel\" to remove this reminder.)")
+
+      chatContext.status = 'WAIT_CANCEL_REMINDER'
+      chatContext.save (err) -> if err? then console.log err
 
   # General mode.
   else
@@ -235,8 +278,9 @@ handleMessage = (message, user, chatContext) ->
         bot.sendMessage
           chat_id: message.chat.id
           text: ("I'm sorry #{user.firstName}, I'm having some trouble " +
-              "understanding what you mean. Can you explain again? " +
-              "Send /help to ask for more info.")
+              "understanding what you mean. Can you explain again?\n\n" +
+              "Send /help to ask for more info or /feedback to tell me " +
+              "your feedback.")
 
   return
 
