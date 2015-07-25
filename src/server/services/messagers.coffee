@@ -175,7 +175,7 @@ sendResetLocation = (message, user, chatContext) ->
   bot.sendMessage
     chat_id: message.chat.id
     text: ("#{user.firstName}, please tap the paperclip on the " +
-        "bottom :point_down:, tap Location and then tap Send My " +
+        "bottom, tap Location and then tap Send My " +
         "Current Location.\nOr you can just send your city, state " +
         "and country like \"Palo Alto, CA, US\".")
   chatContext.status = 'WAIT_LOCATION'
