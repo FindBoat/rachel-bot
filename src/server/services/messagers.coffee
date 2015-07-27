@@ -158,7 +158,7 @@ maybeSaveFeedback = (message, user, chatContext) ->
   chatContext.status = null
   chatContext.save (err) -> if err? then console.log err
 
-  if message.text.toLowerCase() is 'cancel'
+  if message.text?.toLowerCase() is 'cancel'
     bot.sendMessage
       chat_id: message.chat.id
       text: "Fine. So what can I do for you #{user.firstName}?"
@@ -212,7 +212,7 @@ handleMessage = (message, user, chatContext) ->
     when 'WAIT_CANCEL_REMINDER'
       chatContext.status = null
       chatContext.save (err) -> if err? then console.log err
-      if message.text.toLowerCase() is 'cancel'
+      if message.text?.toLowerCase() is 'cancel'
         cancelReminder message, user
         return
     when 'WAIT_FEEDBACK'
