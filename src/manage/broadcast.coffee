@@ -25,9 +25,10 @@ broadcast = ->
       else
         # User userId as chatId.
         for user in users
+          message = answers.message.replace '#{name}', user.firstName
           bot.sendMessage
             chat_id: user.telegramUserId
-            text: answers.message
+            text: message
 
       db.disconnect()
 
