@@ -136,7 +136,8 @@ sendHelp = (message) ->
         "\"Rachel, can you remind me to check my email next week?\"\n" +
         "\"Remind me tomorrow noon to have lunch with Mark.\"\n\n" +
         "/feedback to tell me your feedback.\n" +
-        "/resetlocation to reset your location and timezone.")
+        "/resetlocation to reset your location and timezone.\n" +
+        "/listreminders to see all your unnotified reminders.")
 
 cancelReminder = (message, user) ->
   Reminder.findOne userId: user._id, null, sort: {createAt: -1}, (err, reminder) ->
@@ -181,13 +182,37 @@ sendResetLocation = (message, user, chatContext) ->
   chatContext.status = 'WAIT_LOCATION'
   chatContext.save (err) -> if err? then console.log err
 
+listReminders = (message, user) ->
+  params =
+    userId: user._id
+    reminded: false
+  Reminder.find(params).sort(remindTime: 1).exec (err, reminders) ->
+    if err?
+      console.log err
+      return
+
+    if not reminders? or reminders.length is 0
+      bot.sendMessage
+        chat_id: message.chat.id
+        text: "#{user.firstName}, you don't have any unnotified reminders."
+    else
+      str = ''
+      for reminder in reminders
+        displayTime = moment(reminder.remindTime).format 'M/D/YYYY hh:mm:ss a'
+        str += "#{reminder.todo} at #{displayTime}\n"
+      bot.sendMessage
+        chat_id: message.chat.id
+        text: ("#{user.firstName}, here are your unnotified reminders:" +
+            "\n\n#{str}")
+    
+
 
 handleMessage = (message, user, chatContext) ->
   # Greeting.
   if message.text is '/start'
     sendGreeting message, user, chatContext
     return
-  if message.text is '/help'
+  if message.text is '/help' or message.text is 'help'
     sendHelp message
     return
   if message.text is '/feedback'
@@ -195,6 +220,9 @@ handleMessage = (message, user, chatContext) ->
     return
   if message.text is '/resetlocation'
     sendResetLocation message, user, chatContext
+    return
+  if message.text is '/listreminders'
+    listReminders message, user
     return
 
   # Check answer by chatContext.status.
